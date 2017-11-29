@@ -7,7 +7,6 @@ import org.springframework.context.annotation.ImportResource;
 
 @SpringBootApplication
 @EnableAutoConfiguration
-@ImportResource({"application-context.xml"})
 public class Main {
 
     public static void main(String[] args) {
