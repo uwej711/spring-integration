@@ -11,17 +11,32 @@
 
 
 
-    <int-http:inbound-gateway request-channel="temperature-c"
+    <int-http:inbound-gateway request-channel="temperature-c-raw"
                               reply-channel="temperature-f"
                               supported-methods="GET"
                               path="/c2f/{temperature}"
                               payload-expression="#pathVariables.temperature"/>
 
+    <int:router input-channel="temperature-c-raw" ref="router" method="checkTemperature" />
+
+    <int:channel id="temperature-c-raw" />
     <int:channel id="temperature-c" />
     <int:channel id="temperature-f" />
+    <int:channel id="error" />
 
+    <int:chain input-channel="error">
+        <int:header-enricher>
+            <int:header name="http_statusCode" value="500" />
+        </int:header-enricher>
+        <int:transformer expression="payload + ' not valid'" />
+    </int:chain>
+    
     <int:service-activator input-channel="temperature-c" output-channel="temperature-f" ref="converter" method="celsiusToFahrenheit"/>
 
     <bean id="converter" class="com.valiton.spring.service.Convert" />
+
+    <bean id="router" class="com.valiton.spring.router.Router">
+        <property name="minTemp" value="-273.15" />
+    </bean>
 
 </beans>
