@@ -2,7 +2,25 @@
 <beans
     xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    xmlns:int="http://www.springframework.org/schema/integration"
+    xmlns:int-http="http://www.springframework.org/schema/integration/http"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
+        http://www.springframework.org/schema/integration/http http://www.springframework.org/schema/integration/http/spring-integration-http.xsd">
+
+
+
+    <int-http:inbound-gateway request-channel="temperature-c"
+                              reply-channel="temperature-f"
+                              supported-methods="GET"
+                              path="/c2f/{temperature}"
+                              payload-expression="#pathVariables.temperature"/>
+
+    <int:channel id="temperature-c" />
+    <int:channel id="temperature-f" />
+
+    <int:service-activator input-channel="temperature-c" output-channel="temperature-f" ref="converter" method="celsiusToFahrenheit"/>
 
     <bean id="converter" class="com.valiton.spring.service.Convert" />
 
